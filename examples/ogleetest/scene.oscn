@@ -1,0 +1,56 @@
+{
+    "root": {
+        "name": "Root",
+        "className": "Transform",
+        "children": [
+            {
+                "name": "Cam2D",
+                "className": "Camera2D",
+                "children": [],
+                "initSetProperties": {
+                    "zoom": 1,
+                    "visible": true,
+                    "position": {
+                        "className": "Vec2",
+                        "initCallProperties": [
+                            0,
+                            0
+                        ]
+                    },
+                    "rotation": 0,
+                    "scale": {
+                        "className": "Vec2",
+                        "initCallProperties": [
+                            1,
+                            1
+                        ]
+                    }
+                }
+            },
+            {
+                "name": "testline",
+                "className": "Rectangle2D",
+                "children": [
+                    {
+                        "name": "testline2",
+                        "className": "Rectangle2D",
+                        "children": [],
+                        "initSetProperties": {}
+                    }
+                ],
+                "initSetProperties": {}
+            }
+        ],
+        "initSetProperties": {
+            "visible": true,
+            "position": {
+                "className": "Vec3",
+                "initCallProperties": [
+                    0,
+                    0,
+                    0
+                ]
+            }
+        }
+    }
+}

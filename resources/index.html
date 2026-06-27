@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>OGL Editor</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/matter-js@0.19.0/build/matter.min.js"></script>
+</head>
+
+<body>
+    <div class="editor">
+        <div class="top-bar">
+            <div class="mode-list">
+                <span id="mode0" class="mode">2D</span>
+                <span id="mode1" class="mode">3D</span>
+            </div>
+
+            <div class="menu-dropdown">
+                <img id="menu" src="editorimg/menu.png" alt="">
+                <div id="menu-content">
+                    <a class="menu-option" id="new-project-button">New Project</a>
+                    <a class="menu-option" id="save-project-button">Save Project</a>
+                    <a class="menu-option" id="open-project-folder-button">Open Project Folder</a>
+                </div>
+            </div>
+        </div>
+        <div class="middle-section">
+            <div class="hierarchy" id="hierarchy" style="width: 300px">
+                <div class="hierarchy-list editor-pane" id="hierarchy-list"></div>
+                <div class="vert-dragbar" id="hierarchy-dragbar"></div>
+            </div>
+            <div id="stage-container">
+                <div class="toolbar">
+                    <!--TODO: Make images better resolution-->
+                    <img src="editorimg/select.png" class="tool-sel tool-img tool-active" id="pointer" alt="">
+                    <img src="editorimg/translate.png" class="tool-sel tool-img" id="translate" alt="">
+                    <img src="editorimg/rotate.png" class="tool-sel tool-img" id="rotate" alt="">
+                    <img src="editorimg/scale.png" class="tool-sel tool-img" id="scale" alt="">
+                    <img src="editorimg/play.png" class="tool-img tool-img-right" id="play-btn" alt="">
+                    <img src="editorimg/pause.png" class="tool-img tool-img-right tool-img-hidden" id="pause-btn" alt="">
+                </div>
+                <iframe id="canvas-container" frameBorder="0" src="canvas-content.html" scrolling="no"></iframe>
+            </div>
+            <div class="properties" id="properties" style="width: 300px">
+                <div class="vert-dragbar" id="properties-dragbar"></div>
+                <div class="property-list editor-pane" id="property-list"></div>
+            </div>
+        </div>
+        <div class="assets" id="assets" style="height: 400px">
+            <div class="horiz-dragbar" id="assets-dragbar"></div>
+            <div class="asset-list editor-pane" id="asset-list"></div>
+        </div>
+        <div id="dialog-container">
+            <div id="new-project-dialog" class="dialog-box">
+                <h1>New project!</h1>
+                <span id="new-project-warning"></span>
+                <div class="dialog-section">
+                    <p>Project Folder</p>
+                    <div>
+                        <span id="new-project-span"></span>
+                        <button onclick="chooseNewProjectFolder()">Choose</button>
+                    </div>
+                </div>
+                <div class="dialog-section">
+                    <p>Project Name</p>
+                    <input type="text" id="new-project-name" name="new-project-name">
+                </div>
+                <div class="dialog-buttons">
+                    <button onclick="cancelDialog()">Cancel</button>
+                    <button onclick="confirmCreateProject()">Create</button>
+                </div>
+            </div>
+        </div>
+        <div id="context-menu"></div>
+    </div>
+
+    <script>
+        const hierarchy = document.getElementById("hierarchy");
+        const properties = document.getElementById("properties");
+        const assets = document.getElementById("assets");
+
+        const hierarchyDragbar = document.getElementById("hierarchy-dragbar");
+        const propertiesDragbar = document.getElementById("properties-dragbar");
+        const assetsDragbar = document.getElementById("assets-dragbar");
+
+        const stageContainer = document.getElementById("stage-container");
+
+        let hierarchyWidth = 300;
+        let propertiesWidth = 300;
+        let assetsHeight = 400;
+
+        let hierarchyDragging = false;
+        let propertiesDragging = false;
+        let assetsDragging = false;
+
+        hierarchyDragbar.onmousedown = () => {
+            hierarchyDragging = true;
+
+            stageContainer.style.zIndex = -100;
+        };
+        propertiesDragbar.onmousedown = () => {
+            propertiesDragging = true;
+
+            stageContainer.style.zIndex = -100;
+        };
+        assetsDragbar.onmousedown = () => {
+            assetsDragging = true;
+
+            stageContainer.style.zIndex = -100;
+        };
+        document.addEventListener("mousemove", (e) => {
+            if (hierarchyDragging === true) {
+                hierarchyWidth += e.movementX;
+                hierarchy.style.width = hierarchyWidth + 'px';
+            }
+            else if (propertiesDragging === true) {
+                propertiesWidth -= e.movementX;
+                properties.style.width = propertiesWidth + 'px';
+            }
+            else if (assetsDragging === true) {
+                assetsHeight -= e.movementY;
+                assets.style.height = assetsHeight + 'px';
+            }
+        });
+
+        document.addEventListener("mouseup", (e) => {
+            hierarchyDragging = false;
+            propertiesDragging = false;
+            assetsDragging = false;
+
+            stageContainer.style.zIndex = 100;
+        });
+    </script>
+
+    <script>
+        const menu = document.getElementById("menu");
+        const menuContent = document.getElementById("menu-content");
+        document.addEventListener("click", (e) => {
+            if (event.target !== menu) {
+                menuContent.classList.remove("show-menu-content");
+            }
+            else {
+                menuContent.classList.toggle("show-menu-content");
+            }
+        })
+    </script>
+
+    <!-- Neutralino.js client. This file is gitignored, 
+        because `neu update` typically downloads it.
+        Avoid copy-pasting it. 
+        -->
+    <script src="js/neutralino.js"></script>
+    <!-- Your app's source files -->
+
+    <script src="js/main.js"></script>
+
+    <script type="module" defer>
+        import { Editor } from "./js/Editor.js";
+        const editor = new Editor();
+
+        const newProjectButton = document.getElementById("new-project-button");
+        const saveProjectButton = document.getElementById("save-project-button");
+        const openProjectFolderButton = document.getElementById("open-project-folder-button");
+
+        newProjectButton.onclick = () => editor.projectManager.newProject();
+        saveProjectButton.onclick = () => editor.projectManager.saveProject();
+        openProjectFolderButton.onclick = () => editor.projectManager.openProjectFolder();
+
+        const toolSels = document.querySelectorAll(".tool-sel");
+        toolSels.forEach(sel => {
+            const toolName = sel.id;
+            sel.onclick = () => editor.stageManager.setTool(sel, toolName);
+        });
+
+        const playBtn = document.getElementById("play-btn");
+        const pauseBtn = document.getElementById("pause-btn");
+        playBtn.onclick = () => {
+            pauseBtn.classList.remove("tool-img-hidden");
+            playBtn.classList.add("tool-img-hidden");
+            editor.stageManager.playtestScene();
+        }
+        pauseBtn.onclick = () => {
+            playBtn.classList.remove("tool-img-hidden");
+            pauseBtn.classList.add("tool-img-hidden");
+            editor.stageManager.stoptestScene();
+        }
+
+        for (let i = 0; i < 2; i++) {
+            const modeButton = document.getElementById("mode" + i);
+            modeButton.onclick = () => editor.sceneManager.setMode(i, modeButton.innerText);
+        }
+
+        //expose for console debugging
+        window["editor"] = editor;
+
+        editor.start();
+    </script>
+    <script src="js/contextmenu.js"></script>
+</body>
+
+</html>
